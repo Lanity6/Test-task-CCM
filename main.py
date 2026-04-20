@@ -92,6 +92,7 @@ def main():
     count = 0
     image_count = 0
     total_time_start = time.time()
+    torch.cuda.reset_peak_memory_stats()
     keyframe_time = utils.Accumulator()
     backend_time = utils.Accumulator()
     for image_name in tqdm(image_names):
@@ -130,6 +131,7 @@ def main():
             image_names_subset = image_names_subset[-args.overlapping_window_size:]
 
     total_time = time.time() - total_time_start
+    peak_memory_mb = torch.cuda.max_memory_allocated() / 1024 ** 2
     average_fps = total_time / image_count
     print(image_count, "frames processed")
     print("Total time:", total_time)
@@ -141,6 +143,7 @@ def main():
     print("Average semantic time per frame:", solver.clip_timer.total_time / image_count)
     print("Average total time per frame:", total_time / image_count)
     print("Average FPS:", 1 / average_fps)
+    print(f"Peak GPU memory: {peak_memory_mb:.1f} MB")
         
     print("Total number of submaps in map", solver.map.get_num_submaps())
     print("Total number of loop closures in map", solver.graph.get_num_loops())
